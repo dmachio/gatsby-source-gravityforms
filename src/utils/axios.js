@@ -1,10 +1,9 @@
 const axios = require('axios')
 const chalk = require('chalk')
-const oauthSignature = require('oauth-signature')
 
 const { routes } = require('./routes')
 const { isObjEmpty, slugify } = require('./helpers')
-const { new0AuthParameters } = require('./oAuthParameters')
+const btoa = require('btoa');
 
 const log = console.log
 
@@ -12,25 +11,15 @@ const log = console.log
 async function getForms(basicAuth, api, baseUrl) {
     log(chalk.black.bgWhite('Fetching form ids'))
 
-    const authParams = new0AuthParameters(api.key)
-
     let result
 
     try {
-        const signature = oauthSignature.generate(
-            'GET',
-            baseUrl + routes.wp + routes.gf + routes.forms,
-            authParams,
-            api.secret
-        )
-
         result = await axios.get(
             baseUrl + routes.wp + routes.gf + routes.forms,
             {
                 responseType: 'json',
-                params: {
-                    ...authParams,
-                    oauth_signature: signature,
+                headers: {
+                    Authorization: 'Basic ' + btoa(`${api.key}:${api.secret}`),
                 },
                 auth: basicAuth,
             }
@@ -48,29 +37,18 @@ async function getForms(basicAuth, api, baseUrl) {
 async function getFormFields(basicAuth, api, baseUrl, form) {
     log(chalk.black.bgWhite(`Fetching fields for form ${form.id}`))
 
-    let authParams = new0AuthParameters(api.key)
-
     let result
 
     const apiURL =
         baseUrl + routes.wp + routes.gf + routes.forms + '/' + form.id
-
-    // Make a new signature
-    const signature = oauthSignature.generate(
-        'GET',
-        apiURL,
-        authParams,
-        api.secret
-    )
 
     try {
         result = await axios.get(
             baseUrl + routes.wp + routes.gf + routes.forms + '/' + form.id,
             {
                 responseType: 'json',
-                params: {
-                    ...authParams,
-                    oauth_signature: signature,
+                headers: {
+                    Authorization: 'Basic ' + btoa(`${api.key}:${api.secret}`),
                 },
                 auth: basicAuth,
             }
