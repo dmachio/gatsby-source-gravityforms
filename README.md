@@ -1,3 +1,8 @@
+# Intro
+
+This is a custom Gravity Forms Gatsby Source plugin for [Airfleet] (https://www.airfleet.co/). The component has been borrowed almost entirely from @robmarshall's [package] (https://github.com/robmarshall/gatsby-gravityforms-component). Here are some modifications made:
+1. Use basic authentication to connect to Gravity Forms.
+
 # gatsby-source-gravityforms
 
 This plugin connects to a WordPress Gravity Forms install. It finds all active forms and settings and adds them to the Gatsby nodes.
