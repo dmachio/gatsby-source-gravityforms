@@ -3,7 +3,12 @@ const chalk = require('chalk')
 
 const { routes } = require('./routes')
 const { isObjEmpty, slugify } = require('./helpers')
-const btoa = require('btoa');
+const btoa = require('btoa')
+
+// Using fetch instead of axios because for some unknown reason,
+// the request sent by axios truncated the authentication token
+// causing an authentication error
+const fetch = require('node-fetch')
 
 const log = console.log
 
@@ -14,16 +19,17 @@ async function getForms(basicAuth, api, baseUrl) {
     let result
 
     try {
-        result = await axios.get(
-            baseUrl + routes.wp + routes.gf + routes.forms,
-            {
-                responseType: 'json',
-                headers: {
-                    Authorization: 'Basic ' + btoa(`${api.key}:${api.secret}`),
-                },
-                auth: basicAuth,
-            }
-        )
+        const token = btoa(`${api.key}:${api.secret}`)
+        const requestUrl = baseUrl + routes.wp + routes.gf + routes.forms
+
+        result = await fetch(requestUrl, {
+            headers: {
+                Authorization: `Basic ${token}`,
+            },
+            auth: basicAuth,
+        })
+
+        result = result.json()
     } catch (err) {
         apiErrorHandler(err)
         // Kill the plugin
@@ -43,16 +49,16 @@ async function getFormFields(basicAuth, api, baseUrl, form) {
         baseUrl + routes.wp + routes.gf + routes.forms + '/' + form.id
 
     try {
-        result = await axios.get(
-            baseUrl + routes.wp + routes.gf + routes.forms + '/' + form.id,
-            {
-                responseType: 'json',
-                headers: {
-                    Authorization: 'Basic ' + btoa(`${api.key}:${api.secret}`),
-                },
-                auth: basicAuth,
-            }
-        )
+        const token = btoa(`${api.key}:${api.secret}`)
+
+        result = await fetch(apiURL, {
+            headers: {
+                Authorization: `Basic ${token}`,
+            },
+            auth: basicAuth,
+        })
+
+        result = result.json()
     } catch (err) {
         apiErrorHandler(err)
         // Kill the plugin
@@ -81,12 +87,18 @@ async function getFormsAndFields(basicAuth, api, baseUrl, formsArgs) {
                 let currentFormId = parseInt(currentForm.id)
 
                 // If include is defined with form IDs, only include these form IDs.
-                if ( formsArgs.include && !formsArgs.include.includes(currentFormId) ) {
+                if (
+                    formsArgs.include &&
+                    !formsArgs.include.includes(currentFormId)
+                ) {
                     continue
                 }
 
                 // If exclude is defined with form IDs, don't include these form IDs.
-                if ( formsArgs.exclude && formsArgs.exclude.includes(currentFormId) ) {
+                if (
+                    formsArgs.exclude &&
+                    formsArgs.exclude.includes(currentFormId)
+                ) {
                     continue
                 }
 
