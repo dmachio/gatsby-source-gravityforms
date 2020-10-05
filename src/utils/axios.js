@@ -29,14 +29,14 @@ async function getForms(basicAuth, api, baseUrl) {
             auth: basicAuth,
         })
 
-        result = result.json()
+        result = await result.json()
     } catch (err) {
         apiErrorHandler(err)
         // Kill the plugin
         return false
     }
 
-    return result.data
+    return result
 }
 
 // Get form fields from GF
@@ -58,15 +58,15 @@ async function getFormFields(basicAuth, api, baseUrl, form) {
             auth: basicAuth,
         })
 
-        result = result.json()
+        result = await result.json()
     } catch (err) {
         apiErrorHandler(err)
         // Kill the plugin
         return false
     }
 
-    result.data['slug'] = slugify(form.title)
-    result.data['apiURL'] = apiURL
+    result['slug'] = slugify(form.title)
+    result['apiURL'] = apiURL
 
     return result.data
 }
