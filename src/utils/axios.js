@@ -68,7 +68,7 @@ async function getFormFields(basicAuth, api, baseUrl, form) {
     result['slug'] = slugify(form.title)
     result['apiURL'] = apiURL
 
-    return result.data
+    return result
 }
 
 async function getFormsAndFields(basicAuth, api, baseUrl, formsArgs) {
